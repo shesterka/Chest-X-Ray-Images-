@@ -1,0 +1,75 @@
+pip install pycharm-community    
+pip install tensorflow    
+python -m venv myenv
+myenv\Scripts\activate     
+import pandas as pd
+import os
+from matplotlib import pyplot as plt
+from PIL import Image
+
+metadata_path = "D:/chest_xray_metadata.csv"
+metadata = pd.read_csv(metadata_path)
+
+# Настройки отображения для полного просмотра данных
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_colwidth', None)
+data_iterator = train.as_numpy_iterator()
+batch = data_iterator.next()
+fig, ax = plt.subplots(ncols=4, figsize=(20,20))
+for idx, img in enumerate(batch[0][:4]):
+    ax[idx].imshow(img.astype(int))
+    ax[idx].title.set_text(batch[1][idx])
+x_train = []
+y_train = []
+x_val = []
+y_val = []
+x_test = []
+y_test = []
+for feature, label in train:
+    x_train.append(feature.numpy())
+    y_train.append(label.numpy())
+
+for feature, label in test:
+    x_test.append(feature.numpy())
+    y_test.append(label.numpy())
+    
+for feature, label in validation:
+    x_val.append(feature.numpy())
+    y_val.append(label.numpy())
+x_train = np.concatenate(x_train, axis=0)
+x_val = np.concatenate(x_val, axis=0)
+x_test = np.concatenate(x_test, axis=0)
+y_train = np.concatenate(y_train, axis=0)
+y_val = np.concatenate(y_val, axis=0)
+y_test = np.concatenate(y_test, axis=0)
+print("Shape of 'x_train':", x_train.shape)
+print("Shape of 'y_train':", y_train.shape)
+print("Shape of 'x_val':", x_val.shape)
+print("Shape of 'y_val':", y_val.shape)
+print("Shape of 'x_test':", x_test.shape)
+print("Shape of 'y_test':", y_test.shape)
+Shape of 'x_train': (5216, 256, 256, 3)
+Shape of 'y_train': (5216, 2)
+Shape of 'x_val': (16, 256, 256, 3)
+Shape of 'y_val': (16, 2)
+Shape of 'x_test': (624, 256, 256, 3)
+Shape of 'y_test': (624, 2)
+x_train=x_train/256
+x_val=x_val/256
+x_test=x_test/256
+def preprocess_images(image_list):
+    """
+    Convert images to grayscale and resize.
+    """
+    processed_images = [cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) for img in image_list]
+    resized_images = [cv2.resize(img, (128, 128)) for img in processed_images]
+    return np.array(resized_images)
+
+  def split_dataset(x_data, y_data, train_size=0.8):
+         """
+         Split data into training and testing sets.
+         """
+         total_samples = len(x_data)
+         train_samples = int(total_samples * train_size)
+     return x_data[:train_samples], y_data[:train_samples], x_data[train_samples:], y_data[train_samples:]
