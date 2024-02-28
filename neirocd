@@ -1,0 +1,50 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
+
+model = Sequential()
+model.add(Dense(units=128, activation='relu', input_dim=10))
+model.add(Dense(units=64, activation='relu'))
+model.add(Dense(units=1, activation='sigmoid'))
+
+model.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=0.001), metrics=['accuracy'])
+
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+
+history = model.fit(X_train, y_train, epochs=20, validation_data=(X_val, y_val))
+
+import matplotlib.pyplot as plt
+
+def plot_learning_curves(history):
+    plt.plot(history.history['train_loss'], label='Обучающая выборка')
+    plt.plot(history.history['val_loss'], label='Валидационная выборка')
+    plt.title('loss')
+    plt.xlabel('epoch')
+    plt.ylabel('loss')
+    plt.legend()
+    plt.show()
+
+
+plot_learning_curves(history)
+
+def plot_confusion_matrix(y_true, y_pred, classes):
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=classes, yticklabels=classes)
+    plt.title('Матрица ошибок')
+    plt.xlabel('Предсказанные значения')
+    plt.ylabel('Истинные значения')
+    plt.show()
+
+model.save('trained_model.h5')
+loaded_model = keras.models.load_model('trained_model.h5')
+new_data = np.array([[...]])
+prediction = loaded_model.predict(new_data)
+y_val_pred = model.predict_classes(X_val)
+
+plot_confusion_matrix(y_val, y_val_pred, classes=['Класс 0', 'Класс 1'])
